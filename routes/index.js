@@ -1,11 +1,17 @@
 const router = require("express").Router();
+const clothingItem = require("./clothingItems");
 
-const userRouter = require("./users");
+const { getUsers, createUser, getUser } = require("../controllers/users");
 
-router.use("/users", userRouter);
+router.use("/items", clothingItem);
 
-// router.use((req, res) => {
-//   res.status(404).send({ message: "Welcome! Requested resource not found" });
-// });
+// User routes
+router.get("/users", getUsers);
+router.post("/users", createUser);
+router.get("/users/:userId", getUser);
+
+router.use((req, res) => {
+  res.status(404).send({ message: "Route not found" });
+});
 
 module.exports = router;
