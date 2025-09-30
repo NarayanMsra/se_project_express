@@ -1,3 +1,15 @@
+const {
+  OK_STATUS_CODE,
+  CREATED_STATUS_CODE,
+  BAD_REQUEST_STATUS_CODE,
+  INTERNAL_SERVER_ERROR_STATUS_CODE,
+} = require("../utils/errors");
+
+const okStatusCode = OK_STATUS_CODE;
+const createdStatusCode = CREATED_STATUS_CODE;
+const badRequestStatusCode = BAD_REQUEST_STATUS_CODE;
+const internalServerStatusCode = INTERNAL_SERVER_ERROR_STATUS_CODE;
+
 const ClothingItem = require("../models/clothingItem");
 
 const createItem = (req, res) => {
@@ -7,22 +19,26 @@ const createItem = (req, res) => {
   const { name, weather, imageUrl } = req.body;
 
   ClothingItem.create({ name, weather, imageUrl })
-    .then((item) => res.status(201).send(item))
+    .then((item) => res.status(createdStatusCode).send(item))
     .catch((err) => {
       console.error(err);
       if (err.name === "ValidationError") {
-        return res.status(400).send({ message: err.message });
+        return res.status(badRequestStatusCode).send({ message: err.message });
       }
-      return res.status(500).send({ message: "Error from createItem", err });
+      return res
+        .status(internalServerStatusCode)
+        .send({ message: "Error from createItem", err });
     });
 };
 
 const getItems = (req, res) => {
   ClothingItem.find({})
-    .then((items) => res.status(200).send(items))
+    .then((items) => res.status(okStatusCode).send(items))
     .catch((err) => {
       console.error(err);
-      return res.status(500).send({ message: "Error from getItems", err });
+      return res
+        .status(internalServerStatusCode)
+        .send({ message: "Error from getItems", err });
     });
 };
 
@@ -32,10 +48,12 @@ const updateItem = (req, res) => {
 
   ClothingItem.findByIdAndUpdate(itemId, { $set: { imageUrl } })
     .orFail()
-    .then((item) => res.status(200).send({ data: item }))
+    .then((item) => res.status(okStatusCode).send({ data: item }))
     .catch((err) => {
       console.error(err);
-      return res.status(500).send({ message: "Error from updateItem", err });
+      return res
+        .status(internalServerStatusCode)
+        .send({ message: "Error from updateItem", err });
     });
 };
 
@@ -44,10 +62,12 @@ const deleteItem = (req, res) => {
 
   ClothingItem.findByIdAndDelete(itemId)
     .orFail()
-    .then((item) => res.status(200).send({ data: item }))
+    .then((item) => res.status(okStatusCode).send({ data: item }))
     .catch((err) => {
       console.error(err);
-      return res.status(500).send({ message: "Error from deleteItem", err });
+      return res
+        .status(internalServerStatusCode)
+        .send({ message: "Error from deleteItem", err });
     });
 };
 
