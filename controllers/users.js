@@ -14,17 +14,19 @@ const internalServerStatusCode = INTERNAL_SERVER_ERROR_STATUS_CODE;
 
 const User = require("../models/user");
 
-//Get /users
-
+// GET /users
 const getUsers = (req, res) => {
   User.find({})
     .then((users) => res.status(okStatusCode).send(users))
     .catch((err) => {
       console.error(err);
-      return res.status(internalServerStatusCode).send({ message: err.message });
+      return res
+        .status(internalServerStatusCode)
+        .send({ message: "An error occurred while fetching users" });
     });
 };
 
+// POST /users
 const createUser = (req, res) => {
   const { name, avatar } = req.body;
 
@@ -32,27 +34,36 @@ const createUser = (req, res) => {
     .then((user) => res.status(createdStatusCode).send(user))
     .catch((err) => {
       console.error(err);
-      if (err.name === "validationError") {
+      if (err.name === "ValidationError") {
         return res.status(badRequestStatusCode).send({ message: err.message });
       }
-      return res.status(internalServerStatusCode).send({ message: err.message });
+      return res
+        .status(internalServerStatusCode)
+        .send({ message: "An error occurred while creating user" });
     });
 };
 
+// GET /users/:userId
 const getUser = (req, res) => {
   const { userId } = req.params;
+
   User.findById(userId)
-    .orFail() //Need to work more
+    .orFail()
     .then((user) => res.status(okStatusCode).send(user))
     .catch((err) => {
       console.error(err);
       if (err.name === "DocumentNotFoundError") {
-        return res.status(notFoundStatusCode).send({ message: err.message });
+        return res
+          .status(notFoundStatusCode)
+          .send({ message: "User not found" });
       } else if (err.name === "CastError") {
-        return res.status(badRequestStatusCode).send({ message: err.message });
+        return res
+          .status(badRequestStatusCode)
+          .send({ message: "Invalid user ID" });
       }
-
-      return res.status(internalServerStatusCode).send({ message: err.message });
+      return res
+        .status(internalServerStatusCode)
+        .send({ message: "An error occurred while fetching user" });
     });
 };
 

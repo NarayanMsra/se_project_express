@@ -13,12 +13,10 @@ const internalServerStatusCode = INTERNAL_SERVER_ERROR_STATUS_CODE;
 const ClothingItem = require("../models/clothingItem");
 
 const createItem = (req, res) => {
-  console.log(req);
-  console.log(req.body);
-
   const { name, weather, imageUrl } = req.body;
+  const owner = req.user._id;
 
-  ClothingItem.create({ name, weather, imageUrl })
+  ClothingItem.create({ name, weather, imageUrl, owner })
     .then((item) => res.status(createdStatusCode).send(item))
     .catch((err) => {
       console.error(err);
@@ -27,7 +25,7 @@ const createItem = (req, res) => {
       }
       return res
         .status(internalServerStatusCode)
-        .send({ message: "Error from createItem", err });
+        .send({ message: "An error occurred while creating item" });
     });
 };
 
@@ -38,22 +36,7 @@ const getItems = (req, res) => {
       console.error(err);
       return res
         .status(internalServerStatusCode)
-        .send({ message: "Error from getItems", err });
-    });
-};
-
-const updateItem = (req, res) => {
-  const { itemId } = req.params;
-  const { imageUrl } = req.body;
-
-  ClothingItem.findByIdAndUpdate(itemId, { $set: { imageUrl } })
-    .orFail()
-    .then((item) => res.status(okStatusCode).send({ data: item }))
-    .catch((err) => {
-      console.error(err);
-      return res
-        .status(internalServerStatusCode)
-        .send({ message: "Error from updateItem", err });
+        .send({ message: "An error occurred while fetching items" });
     });
 };
 
@@ -67,8 +50,44 @@ const deleteItem = (req, res) => {
       console.error(err);
       return res
         .status(internalServerStatusCode)
-        .send({ message: "Error from deleteItem", err });
+        .send({ message: "An error occurred while deleting item" });
     });
 };
 
-module.exports = { createItem, getItems, updateItem, deleteItem };
+const likeItem = (req, res) => {
+  const { itemId } = req.params;
+
+  ClothingItem.findByIdAndUpdate(
+    itemId,
+    { $addToSet: { likes: req.user._id } },
+    { new: true }
+  )
+    .orFail()
+    .then((item) => res.status(okStatusCode).send(item))
+    .catch((err) => {
+      console.error(err);
+      return res
+        .status(internalServerStatusCode)
+        .send({ message: "An error occurred while liking item" });
+    });
+};
+
+const dislikeItem = (req, res) => {
+  const { itemId } = req.params;
+
+  ClothingItem.findByIdAndUpdate(
+    itemId,
+    { $pull: { likes: req.user._id } },
+    { new: true }
+  )
+    .orFail()
+    .then((item) => res.status(okStatusCode).send(item))
+    .catch((err) => {
+      console.error(err);
+      return res
+        .status(internalServerStatusCode)
+        .send({ message: "An error occurred while disliking item" });
+    });
+};
+
+module.exports = { createItem, getItems, deleteItem, likeItem, dislikeItem };

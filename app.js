@@ -13,8 +13,14 @@ mongoose
   .catch(console.error);
 
 app.use(express.json());
-// app.use(cors());
 
+// Temporary auth middleware (test user)
+app.use((req, res, next) => {
+  req.user = { _id: "652c2ae2f5f2a2eabc123456" }; // Example user ID
+  next();
+});
+
+// Routes
 app.use("/", mainRouter);
 
 app.listen(PORT, () => {
