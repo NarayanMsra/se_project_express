@@ -48,6 +48,16 @@ const deleteItem = (req, res) => {
     .then((item) => res.status(okStatusCode).send({ data: item }))
     .catch((err) => {
       console.error(err);
+      if (err.name === "DocumentNotFoundError") {
+        return res
+          .status(badRequestStatusCode)
+          .send({ message: "Item not found" });
+      }
+      if (err.name === "CastError") {
+        return res
+          .status(badRequestStatusCode)
+          .send({ message: "Invalid item ID" });
+      }
       return res
         .status(internalServerStatusCode)
         .send({ message: "An error occurred while deleting item" });
@@ -66,6 +76,16 @@ const likeItem = (req, res) => {
     .then((item) => res.status(okStatusCode).send(item))
     .catch((err) => {
       console.error(err);
+      if (err.name === "DocumentNotFoundError") {
+        return res
+          .status(badRequestStatusCode)
+          .send({ message: "Item not found" });
+      }
+      if (err.name === "CastError") {
+        return res
+          .status(badRequestStatusCode)
+          .send({ message: "Invalid item ID" });
+      }
       return res
         .status(internalServerStatusCode)
         .send({ message: "An error occurred while liking item" });
@@ -84,6 +104,16 @@ const dislikeItem = (req, res) => {
     .then((item) => res.status(okStatusCode).send(item))
     .catch((err) => {
       console.error(err);
+      if (err.name === "DocumentNotFoundError") {
+        return res
+          .status(badRequestStatusCode)
+          .send({ message: "Item not found" });
+      }
+      if (err.name === "CastError") {
+        return res
+          .status(badRequestStatusCode)
+          .send({ message: "Invalid item ID" });
+      }
       return res
         .status(internalServerStatusCode)
         .send({ message: "An error occurred while disliking item" });

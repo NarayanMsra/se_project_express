@@ -56,7 +56,7 @@ const getUser = (req, res) => {
         return res
           .status(notFoundStatusCode)
           .send({ message: "User not found" });
-      } else if (err.name === "CastError") {
+      } if (err.name === "CastError") {
         return res
           .status(badRequestStatusCode)
           .send({ message: "Invalid user ID" });

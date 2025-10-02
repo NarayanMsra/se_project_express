@@ -1,17 +1,15 @@
 const router = require("express").Router();
 const { NOT_FOUND_STATUS_CODE } = require("../utils/errors");
+
 const clothingItem = require("./clothingItems");
+const user = require("./users");
 
 const notFoundStatusCode = NOT_FOUND_STATUS_CODE;
-const { getUsers, createUser, getUser } = require("../controllers/users");
 
 router.use("/items", clothingItem);
+router.use("/users", user);
 
-// User routes
-router.get("/users", getUsers);
-router.post("/users", createUser);
-router.get("/users/:userId", getUser);
-
+// Catch-all for undefined routes
 router.use((req, res) => {
   res.status(notFoundStatusCode).send({ message: "Route not found" });
 });
