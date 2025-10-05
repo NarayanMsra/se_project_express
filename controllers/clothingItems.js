@@ -2,12 +2,14 @@ const {
   OK_STATUS_CODE,
   CREATED_STATUS_CODE,
   BAD_REQUEST_STATUS_CODE,
+  NOT_FOUND_STATUS_CODE,
   INTERNAL_SERVER_ERROR_STATUS_CODE,
 } = require("../utils/errors");
 
 const okStatusCode = OK_STATUS_CODE;
 const createdStatusCode = CREATED_STATUS_CODE;
 const badRequestStatusCode = BAD_REQUEST_STATUS_CODE;
+const notFoundStatusCode = NOT_FOUND_STATUS_CODE;
 const internalServerStatusCode = INTERNAL_SERVER_ERROR_STATUS_CODE;
 
 const ClothingItem = require("../models/clothingItem");
@@ -50,7 +52,7 @@ const deleteItem = (req, res) => {
       console.error(err);
       if (err.name === "DocumentNotFoundError") {
         return res
-          .status(badRequestStatusCode)
+          .status(notFoundStatusCode)
           .send({ message: "Item not found" });
       }
       if (err.name === "CastError") {
@@ -78,7 +80,7 @@ const likeItem = (req, res) => {
       console.error(err);
       if (err.name === "DocumentNotFoundError") {
         return res
-          .status(badRequestStatusCode)
+          .status(notFoundStatusCode)
           .send({ message: "Item not found" });
       }
       if (err.name === "CastError") {
@@ -106,7 +108,7 @@ const dislikeItem = (req, res) => {
       console.error(err);
       if (err.name === "DocumentNotFoundError") {
         return res
-          .status(badRequestStatusCode)
+          .status(notFoundStatusCode)
           .send({ message: "Item not found" });
       }
       if (err.name === "CastError") {
