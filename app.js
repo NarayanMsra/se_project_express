@@ -1,32 +1,32 @@
+require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
+const cors = require("cors");
+
 const mainRouter = require("./routes/index");
-const { login, getCurrentUser } = require("./controllers/users");
 const auth = require("./middlewares/auth");
 
 const app = express();
 const { PORT = 3001 } = process.env;
-const cors = require("cors");
 
-//Auth routes
-app.post("/signin", login);
-app.post("/signup", getCurrentUser);
-app.use("/items", require("./routes/clothingItems"));
+app.use(cors()); // CORS middleware
+app.use(express.json()); // JSON bodies before routes
 
-app.use(auth); //Auth middleware
-
-app.use("/", mainRouter); // main Routes
-
+// Connect to MongoDB
 mongoose
   .connect("mongodb://127.0.0.1:27017/wtwr_db")
-  .then(() => {
-    console.error("Connected to MongoDB");
-  })
-  .catch(console.error);
+  .then()
+  .catch((err) => console.error("❌ MongoDB connection error:", err));
 
-app.use(express.json());
+// Public routes
+app.use("/", mainRouter); // includes /signin and /signup
 
-app.use(cors());
+app.use(auth); // Auth middleware (protects routes below)
+
+// Protected routes
+app.use("/users", require("./routes/users"));
+
+// Start server
 app.listen(PORT, () => {
-  console.error(`Server is running on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });

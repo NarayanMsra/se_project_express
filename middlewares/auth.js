@@ -1,13 +1,11 @@
 const jwt = require("jsonwebtoken");
-const { secretKey } = require("../utils/config");
+const { JWT_SECRET } = require("../utils/config");
 const { UNAUTHORIZED_STATUS_CODE } = require("../utils/errors");
 
 const unauthorizedStatusCode = UNAUTHORIZED_STATUS_CODE;
 
 module.exports = (req, res, next) => {
   const { authorization } = req.headers;
-  //   console.log("Authorization Header:", authorization);
-  //   console.log("Authorization Type:", typeof authorization);
 
   if (!authorization || !authorization.startsWith("Bearer ")) {
     return res
@@ -19,7 +17,7 @@ module.exports = (req, res, next) => {
 
   let payload;
   try {
-    payload = jwt.verify(token, secretKey);
+    payload = jwt.verify(token, JWT_SECRET);
     req.user = payload;
     return next();
   } catch (err) {

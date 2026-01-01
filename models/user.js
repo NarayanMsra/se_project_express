@@ -32,17 +32,18 @@ const userSchema = new mongoose.Schema({
       },
       message: "You must enter a valid email address",
     },
-    unique: true,
   },
   password: {
     type: String,
     required: [true, "Password is required"],
-    minlength: 8,
     select: false,
   },
 });
 
-userSchema.statics.findUserByCredentials = function (email, password) {
+userSchema.statics.findUserByCredentials = function findUserByCredentials(
+  email,
+  password
+) {
   return this.findOne({ email })
     .select("+password")
     .then((user) => {
@@ -59,5 +60,4 @@ userSchema.statics.findUserByCredentials = function (email, password) {
       });
     });
 };
-
 module.exports = mongoose.model("User", userSchema);

@@ -2,6 +2,7 @@ const {
   OK_STATUS_CODE,
   CREATED_STATUS_CODE,
   BAD_REQUEST_STATUS_CODE,
+  FORBIDDEN_STATUS_CODE,
   NOT_FOUND_STATUS_CODE,
   INTERNAL_SERVER_ERROR_STATUS_CODE,
 } = require("../utils/errors");
@@ -9,6 +10,7 @@ const {
 const okStatusCode = OK_STATUS_CODE;
 const createdStatusCode = CREATED_STATUS_CODE;
 const badRequestStatusCode = BAD_REQUEST_STATUS_CODE;
+const forbiddenStatusCode = FORBIDDEN_STATUS_CODE;
 const notFoundStatusCode = NOT_FOUND_STATUS_CODE;
 const internalServerStatusCode = INTERNAL_SERVER_ERROR_STATUS_CODE;
 
@@ -23,11 +25,13 @@ const createItem = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "ValidationError") {
-        return res.status(badRequestStatusCode).send({ message: err.message });
+        return res
+          .status(badRequestStatusCode)
+          .send({ message: "Invalid data" });
       }
       return res
         .status(internalServerStatusCode)
-        .send({ message: "An error occurred while creating item" });
+        .send({ message: "Server error" });
     });
 };
 

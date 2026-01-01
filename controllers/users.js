@@ -21,20 +21,8 @@ const notFoundStatusCode = NOT_FOUND_STATUS_CODE;
 const conflictStatusCode = CONFLICT_STATUS_CODE;
 const internalServerStatusCode = INTERNAL_SERVER_ERROR_STATUS_CODE;
 
-// GET /users
-const getUsers = (req, res) => {
-  User.find({})
-    .then((users) => res.status(okStatusCode).send(users))
-    .catch((err) => {
-      console.error(err);
-      return res
-        .status(internalServerStatusCode)
-        .send({ message: "An error occurred while fetching users" });
-    });
-};
-
 // POST /users(Signup)
-const getCurrentUser = (req, res) => {
+const createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;
 
   if (!name || !avatar || !email || !password) {
@@ -42,34 +30,36 @@ const getCurrentUser = (req, res) => {
       .status(badRequestStatusCode)
       .send({ message: "All fields are required" });
   }
+  // Hash the password before saving to the database
 
-  //Hash the password before saving to the database
-  bcrypt
+  return bcrypt
     .hash(password, 10)
     .then((hash) => User.create({ name, avatar, email, password: hash }))
     .then((user) => {
       const userData = user.toObject();
       delete userData.password;
-      res.status(createdStatusCode).send(userData);
+      return res.status(createdStatusCode).send(userData);
     })
     .catch((err) => {
       console.error(err);
       if (err.code === 11000) {
-        //Duplicate key error
+        // Duplicate key error
         return res
           .status(conflictStatusCode)
           .send({ message: "Email already exists" });
       }
       if (err.name === "ValidationError") {
-        return res.status(badRequestStatusCode).send({ message: err.message });
+        return res
+          .status(badRequestStatusCode)
+          .send({ message: "Invalid data" });
       }
       return res
         .status(internalServerStatusCode)
-        .send({ message: "An error occurred while creating user" });
+        .send({ message: "Server error" });
     });
 };
 
-//Login controller to generate JWT
+// Login controller to generate JWT
 const login = (req, res) => {
   const { email, password } = req.body;
 
@@ -79,31 +69,34 @@ const login = (req, res) => {
       .send({ message: "Email and password are required" });
   }
 
-  User.findUserByCredentials(email, password)
-
+  return User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
         expiresIn: "7d",
       });
-      res.send({ token });
+      return res.status(okStatusCode).send({ token });
     })
     .catch((err) => {
       console.error(err);
+      if (err.message === "Incorrect email or password") {
+        return res
+          .status(unauthorizedStatusCode)
+          .send({ message: "Incorrect email or password" });
+      }
       return res
-        .status(unauthorizedStatusCode)
-        .send({ message: "Invalid email or password" });
+        .status(internalServerStatusCode)
+        .send({ message: "An error occurred during login" });
     });
 };
 
-const logout = (req, res) => {
-  return res.status(okStatusCode).send({ message: "Logged out successfully" });
-};
+const logout = (req, res) =>
+  res.status(okStatusCode).send({ message: "Logged out successfully" });
 
-// GET /users/:userId
+// GET /users/:_id
 const getUser = (req, res) => {
-  const { userId } = req.user._id;
+  const { _id } = req.user;
 
-  User.findById(userId)
+  User.findById(_id)
     .orFail()
     .then((user) => res.status(okStatusCode).send(user))
     .catch((err) => {
@@ -125,16 +118,16 @@ const getUser = (req, res) => {
 };
 
 const updateUser = (req, res) => {
-  const UserId = req.user._id;
+  const { _id } = req.user;
   const { name, avatar } = req.body;
 
   User.findByIdAndUpdate(
-    UserId,
+    _id,
     { name, avatar },
     { new: true, runValidators: true }
   )
     .orFail()
-    .then((updateUser) => res.status(okStatusCode).send(updateUser))
+    .then((updated) => res.status(okStatusCode).send(updated))
     .catch((err) => {
       console.error(err);
       if (err.name === "DocumentNotFoundError") {
@@ -143,7 +136,9 @@ const updateUser = (req, res) => {
           .send({ message: "User not found" });
       }
       if (err.name === "ValidationError") {
-        return res.status(badRequestStatusCode).send({ message: err.message });
+        return res
+          .status(badRequestStatusCode)
+          .send({ message: "Invalid input data" });
       }
       return res
         .status(internalServerStatusCode)
@@ -152,8 +147,7 @@ const updateUser = (req, res) => {
 };
 
 module.exports = {
-  getUsers,
-  getCurrentUser,
+  createUser,
   login,
   logout,
   getUser,

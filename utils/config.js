@@ -1,3 +1,8 @@
-const JWT_SECRET = process.env.JWT_SECRET;
+require("dotenv").config();
 
-module.exports = { JWT_SECRET };
+const { NODE_ENV, JWT_SECRET } = process.env;
+
+module.exports = {
+  JWT_SECRET:
+    NODE_ENV === "production" && JWT_SECRET ? JWT_SECRET : "dev-secret",
+};
