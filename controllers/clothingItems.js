@@ -29,6 +29,7 @@ const createItem = (req, res) => {
           .status(badRequestStatusCode)
           .send({ message: "Invalid data" });
       }
+
       return res
         .status(internalServerStatusCode)
         .send({ message: "Server error" });

@@ -24,7 +24,6 @@ const internalServerStatusCode = INTERNAL_SERVER_ERROR_STATUS_CODE;
 // POST /users(Signup)
 const createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;
-
   if (!name || !avatar || !email || !password) {
     return res
       .status(badRequestStatusCode)
@@ -42,17 +41,20 @@ const createUser = (req, res) => {
     })
     .catch((err) => {
       console.error(err);
+
+      if (err.name === "ValidationError") {
+        return res
+          .status(badRequestStatusCode)
+          .send({ message: "Invalid data" });
+      }
+
       if (err.code === 11000) {
         // Duplicate key error
         return res
           .status(conflictStatusCode)
           .send({ message: "Email already exists" });
       }
-      if (err.name === "ValidationError") {
-        return res
-          .status(badRequestStatusCode)
-          .send({ message: "Invalid data" });
-      }
+
       return res
         .status(internalServerStatusCode)
         .send({ message: "Server error" });

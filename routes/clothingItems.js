@@ -9,9 +9,8 @@ const {
 } = require("../controllers/clothingItems");
 
 // Public route
-router.get("/", getItems);
-
 router.post("/", auth, createItem);
+router.get("/", getItems);
 router.delete("/:itemId", auth, deleteItem);
 router.put("/:itemId/likes", auth, likeItem);
 router.delete("/:itemId/likes", auth, dislikeItem);

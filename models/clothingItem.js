@@ -5,7 +5,6 @@ const clothingItemSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
-    unique: true,
     minlength: 2,
     maxlength: 30,
   },
@@ -16,8 +15,7 @@ const clothingItemSchema = new mongoose.Schema({
   },
   imageUrl: {
     type: String,
-    required: [true, "Image URL is required"],
-    unique: true,
+    required: true,
     validate: {
       validator(value) {
         return validator.isURL(value);
